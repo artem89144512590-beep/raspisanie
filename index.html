@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Расписание МБОУ Кличкинская СОШ</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; margin: 20px; background-color: #f0f2f5; color: #333; }
+        h1 { text-align: center; color: #1a73e8; }
+        .class-buttons { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-bottom: 25px; }
+        .class-btn { padding: 12px 20px; border: 2px solid #1a73e8; background: white; color: #1a73e8; cursor: pointer; border-radius: 8px; font-weight: bold; }
+        .class-btn.active { background: #1a73e8; color: white; }
+        .schedule-display { width: 95%; max-width: 1000px; margin: 0 auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #e0e0e0; padding: 15px; text-align: center; }
+        th { background-color: #1a73e8; color: white; }
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); }
+        .modal-content { background: white; margin: 10% auto; padding: 30px; border-radius: 15px; width: 85%; max-width: 450px; }
+        .edit-fields input { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+        .btn-save { width: 100%; padding: 15px; background: #1a73e8; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <h1>Расписание МБОУ Кличкинская СОШ</h1>
+    <div class="class-buttons" id="classButtons"></div>
+    <div class="schedule-display" id="scheduleDisplay">
+        <p style="text-align: center;">Загрузка данных...</p>
+    </div>
+
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <h2 id="modalTitle">Редактирование</h2>
+            <div class="edit-fields">
+                <input type="text" id="L1" placeholder="1 урок">
+                <input type="text" id="L2" placeholder="2 урок">
+                <input type="text" id="L3" placeholder="3 урок">
+                <input type="text" id="L4" placeholder="4 урок">
+                <input type="text" id="L5" placeholder="5 урок">
+                <input type="text" id="L6" placeholder="6 урок">
+                <button class="btn-save" onclick="saveData()">Сохранить (Пароль 0000)</button>
+                <button style="width:100%; margin-top:10px; border:none; background:none; color:gray;" onclick="closeM()">Отмена</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Твоя ссылка с добавленным .json
+        const DB_URL = "https://schoolschedule-65d11-default-rtdb.firebaseio.com/.json"; 
+
+        let schedule = {};
+        let curClass = null;
+        let curDay = null;
+
+        async function init() {
+            try {
+                const r = await fetch(DB_URL);
+                const data = await r.json();
+                if (data) { schedule = data; } 
+                else {
+                    // Если база пуста, создаем структуру для всех классов
+                    for(let i=1; i<=11; i++) {
+                        schedule[i] = {"Понедельник":["","","","","",""],"Вторник":["","","","","",""],"Среда":["","","","","",""],"Четверг":["","","","","",""],"Пятница":["","","","","",""]};
+                    }
+                }
+                renderBtns();
+                document.getElementById('scheduleDisplay').innerHTML = '<p style="text-align:center;">Выберите класс</p>';
+            } catch(e) { alert("Ошибка подключения к Firebase!"); }
+        }
+
+        function renderBtns() {
+            const cont = document.getElementById('classButtons');
+            for(let i=1; i<=11; i++) {
+                const b = document.createElement('button');
+                b.className = 'class-btn';
+                b.textContent = `${i} класс`;
+                b.onclick = (e) => {
+                    curClass = i;
+                    document.querySelectorAll('.class-btn').forEach(x => x.classList.remove('active'));
+                    e.target.classList.add('active');
+                    showTable();
+                };
+                cont.appendChild(b);
+            }
+        }
+
+        function showTable() {
+            let h = `<h2>Класс ${curClass}</h2><table><tr><th>День</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th></tr>`;
+            const days = ["Понедельник", "Вторник", "Среда", "Четверг", "Пятница"];
+            days.forEach(d => {
+                h += `<tr><td><b>${d}</b></td>`;
+                schedule[curClass][d].forEach(l => h += `<td onclick="openM('${d}')" style="cursor:pointer">${l || '-'}</td>`);
+                h += `</tr>`;
+            });
+            document.getElementById('scheduleDisplay').innerHTML = h + "</table>";
+        }
+
+        function openM(d) {
+            curDay = d;
+            document.getElementById('modalTitle').innerText = `${curClass} класс — ${d}`;
+            for(let i=1; i<=6; i++) document.getElementById('L'+i).value = schedule[curClass][curDay][i-1] || '';
+            document.getElementById('editModal').style.display = 'block';
+        }
+
+        async function saveData() {
+            if (prompt("Введите пароль для сохранения (0000):") !== "0000") return alert("Неверно!");
+            
+            const vals = [];
+            for(let i=1; i<=6; i++) vals.push(document.getElementById('L'+i).value.trim());
+            schedule[curClass][curDay] = vals;
+            
+            try {
+                // Отправляем данные в облако
+                await fetch(DB_URL, { method: 'PUT', body: JSON.stringify(schedule) });
+                document.getElementById('editModal').style.display = 'none';
+                showTable();
+                alert("Данные успешно сохранены в интернете!");
+            } catch(e) { alert("Ошибка при сохранении в облако!"); }
+        }
+
+        function closeM() { document.getElementById('editModal').style.display = 'none'; }
+        window.onload = init;
+    </script>
+</body>
+</html>
+
