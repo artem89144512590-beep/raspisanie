@@ -4,122 +4,296 @@
     <meta charset="UTF-8">
     <title>Расписание МБОУ Кличкинская СОШ</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; margin: 20px; background-color: #f0f2f5; color: #333; }
-        h1 { text-align: center; color: #1a73e8; }
-        .class-buttons { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-bottom: 25px; }
-        .class-btn { padding: 12px 20px; border: 2px solid #1a73e8; background: white; color: #1a73e8; cursor: pointer; border-radius: 8px; font-weight: bold; }
-        .class-btn.active { background: #1a73e8; color: white; }
-        .schedule-display { width: 95%; max-width: 1000px; margin: 0 auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f9f9f9; }
+        .class-buttons { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-bottom: 30px; }
+        .class-btn { padding: 10px 15px; border: 2px solid #4CAF50; background-color: white; color: #333; cursor: pointer; border-radius: 5px; transition: background-color 0.3s; font-weight: bold; }
+        .class-btn.active { background-color: #e8f5e9; }
+        .schedule-display { width: 90%; margin: 0 auto; background: white; padding: 25px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
         table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border: 1px solid #e0e0e0; padding: 15px; text-align: center; }
-        th { background-color: #1a73e8; color: white; }
-        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); }
-        .modal-content { background: white; margin: 10% auto; padding: 30px; border-radius: 15px; width: 85%; max-width: 450px; }
-        .edit-fields input { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
-        .btn-save { width: 100%; padding: 15px; background: #1a73e8; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: center; }
+        th { background-color: #4CAF50; color: white; font-weight: bold; }
+        tr:nth-child(even) { background-color: #f2f2f2; }
+        
+        /* Модальное окно */
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4); }
+        .modal-content {
+            background-color: #fff;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 700px;
+            position: relative;
+        }
+        .close {
+            color: #aaa;
+            position: absolute;
+            top: 15px;
+            right: 25px;
+            font-size: 32px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .close:hover { color: black; }
+        
+        .password-panel {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .password-panel input {
+            padding: 8px;
+            width: calc(50% - 22px);
+            margin-right: 10px;
+        }
+        .password-panel button {
+            padding: 8px 16px;
+        }
+        
+        .edit-fields input {
+            width: calc(100% - 22px);
+            padding: 8px;
+            margin-bottom: 15px;
+            box-sizing: border-box;
+        }
     </style>
 </head>
 <body>
 
-    <h1>Расписание МБОУ Кличкинская СОШ</h1>
-    <div class="class-buttons" id="classButtons"></div>
-    <div class="schedule-display" id="scheduleDisplay">
-        <p style="text-align: center;">Загрузка данных...</p>
+    <h1>Расписание занятий МБОУ Кличкинская СОШ</h1>
+
+    <div class="class-buttons" id="classButtons">
     </div>
 
+    <div class="schedule-display" id="scheduleDisplay">
+        <p style="text-align: center;">Выберите класс.</p>
+    </div>
+
+    <!-- Модальное окно -->
     <div id="editModal" class="modal">
         <div class="modal-content">
-            <h2 id="modalTitle">Редактирование</h2>
-            <div class="edit-fields">
-                <input type="text" id="L1" placeholder="1 урок">
-                <input type="text" id="L2" placeholder="2 урок">
-                <input type="text" id="L3" placeholder="3 урок">
-                <input type="text" id="L4" placeholder="4 урок">
-                <input type="text" id="L5" placeholder="5 урок">
-                <input type="text" id="L6" placeholder="6 урок">
-                <button class="btn-save" onclick="saveData()">Сохранить (Пароль 0000)</button>
-                <button style="width:100%; margin-top:10px; border:none; background:none; color:gray;" onclick="closeM()">Отмена</button>
+            <span class="close" onclick="closeModal()">×</span>
+            
+            <h2 id="modalClassTitle">Редактирование расписания</h2>
+
+            <!-- Панель ввода пароля -->
+            <div class="password-panel" id="passwordPanel">
+                <input type="password" id="passwordInput" placeholder="Введите пароль для редактирования">
+                <button onclick="checkPassword()">Войти</button>
+                <p id="passwordError" style="color: red;"></p>
             </div>
-        </div>
-    </div>
+
+            <!-- Поля редактирования (скрыты до ввода пароля) -->
+            <div class="edit-fields" id="editFields" style="display:none;">
+                <label for="daySelect">День недели:</label>
+                <select id="daySelect" onchange="loadEditData()">
+                    <option value="Понедельник">Понедельник</option>
+                    <option value="Вторник">Вторник</option>
+                    <option value="Среда">Среда</option>
+                    <option value="Четверг">Четверг</option>
+                    <option value="Пятница">Пятница</option>
+                </select>
+
+                <p><strong>Урок 1:</strong> <input type="text" id="editLesson1"></p>
+                <p><strong>Урок 2:</strong> <input type="text" id="editLesson2"></p>
+                <p><strong>Урок 3:</strong> <input type="text" id="editLesson3"></p>
+                <p><strong>Урок 4:</strong> <input type="text" id="editLesson4"></p>
+                <p><strong>Урок 5:</strong> <input type="text" id="editLesson5"></p>
+                <p><strong>Урок 6:</strong> <input type="text" id="editLesson6"></p>
+                
+                <button style="width:100%" onclick="saveEdit()">Сохранить изменения</button>
+                <button style="width:100%; margin-top:10px;" onclick="logout()">Выйти из режима редактирования</button>
+             </div>
+
+             <!-- Скрытые поля для хранения данных -->
+             <input type="hidden" id="currentClassId">
+             <input type="hidden" id="currentDay">
+         </div>
+     </div>
 
     <script>
-        // Твоя ссылка с добавленным .json
-        const DB_URL = "https://schoolschedule-65d11-default-rtdb.firebaseio.com/.json"; 
+        // --- Данные по умолчанию (если LocalStorage пуст) ---
+        const DEFAULT_SCHEDULE = {
+            "1": {
+                "Понедельник": ["Математика", "Русский язык", "Окружающий мир", "Физкультура", "ИЗО", ""],
+                "Вторник": ["Литературное чтение", "Англ. язык", "Математика", "Технология", "Музыка", ""],
+                "Среда": ["Русский язык", "Математика", "Окр. мир", "Физкультура", "", ""],
+                "Четверг": ["Математика", "Русский язык", "Литература", "ИЗО", "", ""],
+                "Пятница": ["Физкультура", "Музыка", "Технология", "", "", ""]
+            },
+            // ... (остальные классы заполняются как в классе "1")
+        };
 
-        let schedule = {};
-        let curClass = null;
-        let curDay = null;
+         // Инициализация данных для всех классов (копируем класс 1)
+         for (let i = 2; i <= 11; i++) {
+             DEFAULT_SCHEDULE[i] = JSON.parse(JSON.stringify(DEFAULT_SCHEDULE["1"]));
+         }
 
-        async function init() {
-            try {
-                const r = await fetch(DB_URL);
-                const data = await r.json();
-                if (data) { schedule = data; } 
-                else {
-                    // Если база пуста, создаем структуру для всех классов
-                    for(let i=1; i<=11; i++) {
-                        schedule[i] = {"Понедельник":["","","","","",""],"Вторник":["","","","","",""],"Среда":["","","","","",""],"Четверг":["","","","","",""],"Пятница":["","","","","",""]};
-                    }
-                }
-                renderBtns();
-                document.getElementById('scheduleDisplay').innerHTML = '<p style="text-align:center;">Выберите класс</p>';
-            } catch(e) { alert("Ошибка подключения к Firebase!"); }
-        }
+         let currentClass = null;
+         let isAdmin = false;
 
-        function renderBtns() {
-            const cont = document.getElementById('classButtons');
-            for(let i=1; i<=11; i++) {
-                const b = document.createElement('button');
-                b.className = 'class-btn';
-                b.textContent = `${i} класс`;
-                b.onclick = (e) => {
-                    curClass = i;
-                    document.querySelectorAll('.class-btn').forEach(x => x.classList.remove('active'));
-                    e.target.classList.add('active');
-                    showTable();
-                };
-                cont.appendChild(b);
-            }
-        }
+         // Функция проверки пароля
+         function checkPassword() {
+             const input = document.getElementById('passwordInput').value;
+             if (input === '0000') {
+                 isAdmin = true;
+                 document.getElementById('passwordPanel').style.display = 'none';
+                 document.getElementById('editFields').style.display = 'block';
+                 loadEditData(); // Загрузить данные сразу после входа
+                 document.getElementById('passwordError').textContent = '';
+             } else {
+                 document.getElementById('passwordError').textContent = 'Неверный пароль!';
+             }
+         }
 
-        function showTable() {
-            let h = `<h2>Класс ${curClass}</h2><table><tr><th>День</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th></tr>`;
-            const days = ["Понедельник", "Вторник", "Среда", "Четверг", "Пятница"];
-            days.forEach(d => {
-                h += `<tr><td><b>${d}</b></td>`;
-                schedule[curClass][d].forEach(l => h += `<td onclick="openM('${d}')" style="cursor:pointer">${l || '-'}</td>`);
-                h += `</tr>`;
-            });
-            document.getElementById('scheduleDisplay').innerHTML = h + "</table>";
-        }
+         function logout() {
+             isAdmin = false;
+             document.getElementById('passwordPanel').style.display = 'block';
+             document.getElementById('editFields').style.display = 'none';
+         }
 
-        function openM(d) {
-            curDay = d;
-            document.getElementById('modalTitle').innerText = `${curClass} класс — ${d}`;
-            for(let i=1; i<=6; i++) document.getElementById('L'+i).value = schedule[curClass][curDay][i-1] || '';
-            document.getElementById('editModal').style.display = 'block';
-        }
+         // Функция получения данных из LocalStorage или из DEFAULT
+         function getScheduleData() {
+             const savedData = localStorage.getItem('schoolSchedule');
+             return savedData ? JSON.parse(savedData) : DEFAULT_SCHEDULE;
+         }
 
-        async function saveData() {
-            if (prompt("Введите пароль для сохранения (0000):") !== "0000") return alert("Неверно!");
-            
-            const vals = [];
-            for(let i=1; i<=6; i++) vals.push(document.getElementById('L'+i).value.trim());
-            schedule[curClass][curDay] = vals;
-            
-            try {
-                // Отправляем данные в облако
-                await fetch(DB_URL, { method: 'PUT', body: JSON.stringify(schedule) });
-                document.getElementById('editModal').style.display = 'none';
-                showTable();
-                alert("Данные успешно сохранены в интернете!");
-            } catch(e) { alert("Ошибка при сохранении в облако!"); }
-        }
+         // Функция сохранения данных в LocalStorage
+         function saveScheduleData(data) {
+             localStorage.setItem('schoolSchedule', JSON.stringify(data));
+         }
 
-        function closeM() { document.getElementById('editModal').style.display = 'none'; }
-        window.onload = init;
-    </script>
+         // Функция открытия окна редактирования
+         function openEditModal(day) {
+             if (!currentClass) return alert('Сначала выберите класс!');
+             
+             document.getElementById('currentClassId').value = currentClass;
+             document.getElementById('currentDay').value = day;
+             
+             // Если пользователь уже в режиме админа, сразу показываем поля
+             if (isAdmin) {
+                 document.getElementById('passwordPanel').style.display = 'none';
+                 document.getElementById('editFields').style.display = 'block';
+             } else {
+                 document.getElementById('passwordPanel').style.display = 'block';
+                 document.getElementById('editFields').style.display = 'none';
+                 document.getElementById('passwordError').textContent = '';
+             }
+             
+             loadEditData();
+             document.getElementById('editModal').style.display = 'block';
+         }
+
+         // Загрузка данных в поля ввода модального окна
+         function loadEditData() {
+             const classId = document.getElementById('currentClassId').value || currentClass;
+             const day = document.getElementById('currentDay').value || document.getElementById('daySelect').value;
+             
+             const data = getScheduleData();
+             const lessons = data[classId][day];
+             
+             document.getElementById('editLesson1').value = lessons[0] || '';
+             document.getElementById('editLesson2').value = lessons[1] || '';
+             document.getElementById('editLesson3').value = lessons[2] || '';
+             document.getElementById('editLesson4').value = lessons[3] || '';
+             document.getElementById('editLesson5').value = lessons[4] || '';
+             document.getElementById('editLesson6').value = lessons[5] || '';
+             
+             document.getElementById('modalClassTitle').textContent = `Редактирование расписания для Класса ${classId} (${day})`;
+         }
+
+         // Сохранение изменений из модального окна
+         function saveEdit() {
+             if (!isAdmin) return alert('Вы не вошли в режим редактирования!');
+             
+             const classId = document.getElementById('currentClassId').value || currentClass;
+             const day = document.getElementById('currentDay').value || document.getElementById('daySelect').value;
+             
+             const data = getScheduleData(); // Берем текущие данные
+
+             data[classId][day] = [
+                 document.getElementById('editLesson1').value.trim(),
+                 document.getElementById('editLesson2').value.trim(),
+                 document.getElementById('editLesson3').value.trim(),
+                 document.getElementById('editLesson4').value.trim(),
+                 document.getElementById('editLesson5').value.trim(),
+                 document.getElementById('editLesson6').value.trim()
+             ];
+             
+             saveScheduleData(data); // Сохраняем в LocalStorage
+
+             closeModal();
+             
+             // Обновляем отображение на странице без перезагрузки
+             if (currentClass) selectClass(currentClass);
+         }
+         
+         function closeModal() {
+              document.getElementById('editModal').style.display = 'none';
+          }
+          
+          window.onclick = function(event) {
+              const modal = document.getElementById("editModal");
+              if (event.target == modal) {
+                  closeModal();
+              }
+          };
+
+          // --- Функции отображения ---
+          function renderClassButtons() {
+              const container = document.getElementById('classButtons');
+              for (let i = 1; i <= 11; i++) {
+                  const btn = document.createElement('button');
+                  btn.textContent = `Класс ${i}`;
+                  btn.className = 'class-btn';
+                  btn.onclick = () => selectClass(i);
+                  container.appendChild(btn);
+              }
+          }
+
+          function selectClass(classNumber) {
+              currentClass = classNumber;
+              
+              // Убираем класс 'active' у всех кнопок
+              document.querySelectorAll('.class-btn').forEach(btn => btn.classList.remove('active'));
+              // Добавляем класс 'active' нажатой кнопке (найти её сложно без event, поэтому просто по номеру)
+              const buttonsArray = Array.from(document.querySelectorAll('.class-btn'));
+              buttonsArray[classNumber - 1].classList.add('active');
+              
+              const display = document.getElementById('scheduleDisplay');
+              display.innerHTML = `<h2>Расписание для Класса ${classNumber}</h2>`;
+              
+              const table = document.createElement('table');
+              
+              const thead = table.createTHead();
+              const headerRow = thead.insertRow();
+              ['День недели', '1 урок', '2 урок', '3 урок', '4 урок', '5 урок', '6 урок'].forEach(text => {
+                  const th = document.createElement('th');
+                  th.textContent = text;
+                  headerRow.appendChild(th);
+              });
+              
+              const tbody = table.createTBody();
+              const days = ['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница'];
+              
+              const data = getScheduleData(); // Получаем актуальные данные из хранилища
+
+              days.forEach(day => {
+                  const row = tbody.insertRow();
+                  row.insertCell().textContent = day;
+                  
+                  const lessons = data[classNumber][day];
+                  lessons.forEach(lessonText => {
+                      const cell = row.insertCell();
+                      cell.textContent = lessonText || '-';
+                      cell.style.cursor = 'pointer';
+                      cell.onclick = () => openEditModal(day);
+                  });
+              });
+              
+              display.appendChild(table);
+          }
+          
+          window.onload = renderClassButtons;
+      </script>
 </body>
 </html>
-
