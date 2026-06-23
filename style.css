@@ -1,0 +1,149 @@
+
+:root {
+  --color-primary: #2e5395;
+  --color-accent: #f2a154;
+  --color-bg-light: #eaf1fb;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Segoe UI", Arial, sans-serif;
+  line-height: 1.6;
+  color: #222;
+  background-color: #fafafa;
+}
+
+
+main {
+  padding: 2rem;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+section {
+  margin-bottom: 3rem;
+}
+
+h2 {
+  margin-bottom: 1rem;
+  color: var(--color-primary);
+}
+
+/* Стили для секции О себе с фотографией */
+.about-container {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  background: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.about-photo {
+  width: 200px;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 50%; /* Круглая форма */
+  border: 3px solid var(--color-primary);
+}
+
+/* Стили для формы обратной связи */
+form {
+  display: flex;
+  flex-direction: column;
+  max-width: 400px;
+  gap: 0.5rem;
+}
+
+input, textarea, button {
+  padding: 0.5rem;
+  font-family: inherit;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+button {
+  background-color: var(--color-primary);
+  color: white;
+  cursor: pointer;
+  border: none;
+  font-weight: bold;
+}
+
+button:hover {
+  background-color: #1e3d73;
+}
+
+/* Flexbox для навигации (Шапка) */
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  background-color: var(--color-primary);
+  color: white;
+}
+
+nav {
+  display: flex;
+  gap: 1.5rem;
+}
+
+nav a {
+  color: white;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+nav a:hover {
+  color: var(--color-accent);
+}
+
+/* Подсветка активного пункта меню */
+nav a.active {
+  text-decoration: underline;
+  color: var(--color-accent);
+}
+
+/* Flexbox для карточек проектов */
+.projects-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+}
+
+.projects-grid article {
+  flex: 1 1 280px;
+  background: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.projects-grid article h3 {
+  margin-bottom: 0.5rem;
+  color: var(--color-primary);
+}
+
+/* Подвал */
+footer {
+  text-align: center;
+  padding: 1.5rem;
+  background-color: #eee;
+  margin-top: 2rem;
+}
+
+/* Адаптивность для мобильных экранов */
+@media (max-width: 600px) {
+  .about-container {
+    flex-direction: column;
+    text-align: center;
+  }
+}
