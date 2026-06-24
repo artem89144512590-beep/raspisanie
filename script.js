@@ -32,3 +32,15 @@ navLinks.forEach(link => {
     nav.classList.remove("open");
   });
 });
+
+// --- НОВОЕ ПО ПР 5: Логика кнопки «Показать больше» ---
+const toggleBtn = document.getElementById("toggle-btn");
+const extraInfo = document.getElementById("extra-info");
+
+toggleBtn.addEventListener("click", () => {
+  extraInfo.classList.toggle("expanded");
+  // Меняем текст на кнопке в зависимости от наличия класса 'expanded'
+  toggleBtn.textContent = extraInfo.classList.contains("expanded")
+    ? "Скрыть"
+    : "Показать больше";
+});

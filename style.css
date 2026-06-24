@@ -32,11 +32,12 @@ h2 {
   color: var(--color-primary);
 }
 
-/* --- ОБНОВЛЕНО ПО ПР 4: Сетка для двух карточек разработчиков (Артём и Ангелина) --- */
+/* Сетка для двух карточек разработчиков (Артём и Ангелина) */
 .about-container {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
   gap: 2rem;
+  margin-bottom: 1.5rem; /* Отступ до кнопки */
 }
 
 .developer-card {
@@ -58,9 +59,26 @@ h2 {
   width: 150px;
   height: 150px;
   object-fit: cover;
-  border-radius: 50%; /* Круглая форма */
+  border-radius: 50%;
   border: 3px solid var(--color-primary);
   flex-shrink: 0;
+}
+
+/* --- НОВОЕ ПО ПР 5: Стили скрытого блока и плавной анимации раскрытия --- */
+.extra-info {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s ease;
+  background: #fff;
+  border-left: 4px solid var(--color-primary);
+  padding: 0 1rem;
+  margin-bottom: 1rem;
+  border-radius: 0 8px 8px 0;
+}
+
+.extra-info.expanded {
+  max-height: 500px;
+  padding: 1rem;
 }
 
 /* Стили для формы обратной связи */
@@ -78,16 +96,22 @@ input, textarea, button {
   border-radius: 4px;
 }
 
+/* --- ОБНОВЛЕНО ПО ПР 5: Эффекты для кнопок --- */
 button {
   background-color: var(--color-primary);
   color: white;
   cursor: pointer;
   border: none;
   font-weight: bold;
+  transition: background-color 0.2s ease, transform 0.1s ease; /* Добавлен плавный переход */
 }
 
 button:hover {
-  background-color: #1e3d73;
+  background-color: var(--color-accent); /* Плавная смена цвета на акцентный */
+}
+
+button:active {
+  transform: scale(0.97); /* Эффект нажатия (уменьшение) */
 }
 
 /* Flexbox для навигации (Шапка) */
@@ -106,11 +130,12 @@ nav {
   gap: 1.5rem;
 }
 
+/* --- ОБНОВЛЕНО ПО ПР 5: Плавный переход для ссылок навигации --- */
 nav a {
   color: white;
   text-decoration: none;
   font-weight: 500;
-  transition: color 0.2s ease;
+  transition: color 0.2s ease; /* Добавлена плавность изменения цвета */
 }
 
 nav a:hover {
@@ -130,16 +155,44 @@ nav a.active {
   gap: 1.5rem;
 }
 
+/* --- ОБНОВЛЕНО ПО ПР 5: Анимация появления карточек + эффект подъема при наведении --- */
 .projects-grid article {
   background: white;
   border-radius: 8px;
   padding: 1.5rem;
   box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  
+  /* Эффект при наведении */
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  
+  /* Анимация появления */
+  animation: fadeInUp 0.6s ease forwards;
 }
 
-.projects-grid article h3 {
-  margin-bottom: 0.5rem;
-  color: var(--color-primary);
+.projects-grid article:hover {
+  transform: translateY(-6px); /* Подъём карточки вверх */
+  box-shadow: 0 10px 24px rgba(0,0,0,0.15); /* Усиление тени */
+}
+
+/* Задержка появления карточек ("Лесенка") */
+.projects-grid article:nth-child(2) {
+  animation-delay: 0.15s;
+}
+
+.projects-grid article:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+/* --- НОВОЕ ПО ПР 5: Описание анимации появления через @keyframes --- */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Подвал */
@@ -150,7 +203,7 @@ footer {
   margin-top: 2rem;
 }
 
-/* Кнопка-бургера (по умолчанию скрыта на ПК) */
+/* Кнопка-бургера */
 .burger {
   display: none;
   font-size: 1.8rem;
@@ -163,11 +216,11 @@ footer {
 /* Адаптивность для мобильных экранов (до 768px) */
 @media (max-width: 768px) {
   .burger {
-    display: block; /* Показываем бургер */
+    display: block;
   }
 
   nav {
-    display: none; /* Прячем стандартную строку меню */
+    display: none;
     flex-direction: column;
     position: absolute;
     top: 100%;
@@ -191,7 +244,6 @@ footer {
     display: flex;
   }
 
-  /* На мобильных экранах карточки обо мне перестраиваются вертикально */
   .about-container {
     grid-template-columns: 1fr;
   }
