@@ -30,7 +30,7 @@
           <img src="img/sep.jpg" alt="Артём Ружников" class="about-photo">
           <div class="developer-info">
             <h3>Артём Ружников</h3>
-            <p>Привет! Я студнт. Изучаю современные стандарты HTML, CSS и основы JavaScript. Помимо веб-разработки, моё главное хобби — это спортзал. Увлекаюсь силовыми тренировками, active образом жизни и постоянным самосовершенствованием, что помогает мне развивать дисциплину и в программировании.</p>
+            <p>Привет! Я студент. Изучаю современные стандарты HTML, CSS и основы JavaScript. Помимо веб-разработки, моё главное хобби — это спортзал. Увлекаюсь силовыми тренировками, active образом жизни и постоянным самосовершенствованием, что помогает мне развивать дисциплину и в программировании.</p>
           </div>
         </div>
 
@@ -53,32 +53,23 @@
     <section id="projects">
       <h2>Наши проекты</h2>
       
-      <div class="projects-grid">
-        <article>
-          <h3>Проект 1: Сайт-визитка кондитерской</h3>
-          <p><strong>Разработчик:</strong> Артём Ружников</p>
-          <p><strong>Описание:</strong> Адаптивный одностраничный сайт для школьного расписания.</p>
-        </article>
-
-        <article>
-          <h3>Проект 2: Интерактивный список задач (Todo App)</h3>
-          <p><strong>Разработчик:</strong> Артём Ружников</p>
-          <p><strong>Описание:</strong> Веб-приложение для планирования задач. Позволяет добавлять, отмечать как выполненные и удалять задачи. Реализовано сохранение данных в LocalStorage.</p>
-        </article>
-
-        <article>
-          <h3>Проект 3: Разработка сайта «Ресторан»</h3>
-          <p><strong>Разработчик:</strong> Ангелина</p>
-          <p><strong>Описание:</strong> Сайт, на котором есть возможность просматривать блюда, заказывать их как онлайн, так и по телефону.</p>
-        </article>
+      <div class="projects-controls">
+        <div class="filters">
+          <button data-filter="all" class="active">Все</button>
+          <button data-filter="frontend">Frontend</button>
+          <button data-filter="design">Дизайн</button>
+        </div>
+        <input type="text" id="search-input" placeholder="Поиск проекта...">
       </div>
+      
+      <div class="projects-grid" id="projects-grid"></div>
     </section>
 
     <section id="contact">
       <h2>Связаться со мной</h2>
       <form id="contact-form">
         <label for="name">Имя</label>
-        <input type="text" id="name" name="name">
+        <input type="text" id="id" name="name">
         <span class="error" id="name-error"></span>
 
         <label for="email">Email</label>
