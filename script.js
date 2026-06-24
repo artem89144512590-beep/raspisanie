@@ -17,3 +17,18 @@ navLinks.forEach(link => {
     link.classList.add("active");
   });
 });
+
+// Логика открытия/закрытия бургер-меню
+const burgerBtn = document.getElementById("burger-btn");
+const nav = document.querySelector("nav");
+
+burgerBtn.addEventListener("click", () => {
+  nav.classList.toggle("open");
+});
+
+// Дополнительно: закрываем меню при клике на ссылку
+navLinks.forEach(link => {
+  link.addEventListener("click", () => {
+    nav.classList.remove("open");
+  });
+});
