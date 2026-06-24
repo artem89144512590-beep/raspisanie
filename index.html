@@ -10,7 +10,10 @@
 
   <header>
     <h1>Портфолио</h1>
-    <button class="burger" id="burger-btn" aria-label="Открыть меню"> ☰ </button>
+    <div class="header-controls">
+      <button id="theme-toggle" aria-label="Переключить тему"> 🌙 </button>
+      <button class="burger" id="burger-btn" aria-label="Открыть меню"> ☰ </button>
+    </div>
     <nav>
       <a href="#about">О нас</a>
       <a href="#projects">Проекты</a>
@@ -42,7 +45,7 @@
       </div>
 
       <div class="extra-info" id="extra-info">
-        <p>Дополнительный текст о себе, который раскрывается по клику... Мы нацеленны на красивый дизайн и сайта, ну и функционала</p>
+        <p>Дополнительный текст о себе, который раскрывается по клику... Мы команда начинающих разработчиков, нацеленных на создание качественных и современных веб-интерфейсов!</p>
       </div>
       <button id="toggle-btn">Показать больше</button>
     </section>
@@ -73,15 +76,17 @@
 
     <section id="contact">
       <h2>Связаться со мной</h2>
-      <form>
+      <form id="contact-form">
         <label for="name">Имя</label>
-        <input type="text" id="name" name="name" required>
+        <input type="text" id="name" name="name">
+        <span class="error" id="name-error"></span>
 
         <label for="email">Email</label>
-        <input type="email" id="email" name="email" required>
+        <input type="text" id="email" name="email">
+        <span class="error" id="email-error"></span>
 
         <label for="message">Сообщение</label>
-        <textarea id="message" name="message" required></textarea>
+        <textarea id="message" name="message"></textarea>
 
         <button type="submit">Отправить</button>
       </form>
